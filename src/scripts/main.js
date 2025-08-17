@@ -4,34 +4,35 @@ let rightClicked = false;
 const firstPromise = new Promise((resolve, reject) => {
   const clickHandler = (e) => {
     if (e.button === 0) {
-      resolve('First promise resolved on left click');
+      resolve('First promise was resolved');
       document.removeEventListener('click', clickHandler);
     }
   };
   document.addEventListener('click', clickHandler);
   setTimeout(() => {
-    reject(new Error('First promise rejected after 3s'));
+    reject('First promise was rejected');
     document.removeEventListener('click', clickHandler);
   }, 3000);
 });
 const secondPromise = new Promise((resolve) => {
   const clickHandler = (e) => {
     if (e.button === 0 || e.button === 2) {
-      resolve('Second promise resolved');
+      resolve('Second promise was resolved');
       document.removeEventListener('click', clickHandler);
-      document.removeEventListener('contextmenu', clickHandler);
+      document.removeEventListener('contextmenu', ctxHandler);
     }
   };
-  document.addEventListener('click', clickHandler);
-  document.addEventListener('contextmenu', (e) => {
+  const ctxHandler = (e) => {
     e.preventDefault();
     clickHandler(e);
-  });
+  };
+  document.addEventListener('click', clickHandler);
+  document.addEventListener('contextmenu', ctxHandler);
 });
 const thirdPromise = new Promise((resolve) => {
   const checkBoth = () => {
     if (leftClicked && rightClicked) {
-      resolve('Third promise resolved after both clicks');
+      resolve('Third promise was resolved');
       document.removeEventListener('click', leftHandler);
       document.removeEventListener('contextmenu', rightHandler);
     }
@@ -59,11 +60,11 @@ const handleSuccess = (message) => {
   div.textContent = message;
   document.body.appendChild(div);
 };
-const handleError = (err) => {
+const handleError = (reason) => {
   const div = document.createElement('div');
   div.dataset.qa = 'notification';
   div.className = 'error';
-  div.textContent = err?.message || String(err);
+  div.textContent = String(reason);
   document.body.appendChild(div);
 };
 firstPromise.then(handleSuccess).catch(handleError);
